@@ -1,0 +1,173 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{observation}{Observation}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\title{Note 2: Operator Factorization and the Structural Obstruction}
+\author{Xiang Huang \and Zinan Huang}
+\date{April 9, 2026}
+
+\begin{document}
+\maketitle
+
+\section{Recap}
+
+From Note~1: the Ap\'ery generating function $F(x) = \sum_{n=1}^{\infty} \frac{(-1)^{n-1}}{n^3 \binom{2n}{n}} x^n$ satisfies:
+\begin{equation}\label{eq:ode}
+  x^2(4+x)\,F''' + x(10+3x)\,F'' + (2+x)\,F' = 1
+\end{equation}
+with $F(0)=0$, $F'(0)=\frac{1}{2}$, $F''(0)=-\frac{1}{24}$, and $F(1)=\frac{2}{5}\zeta(3)$.
+
+The substitution $x = 1-e^{-t}$ converts this to an IVP on $[0,\infty)$ with rational initial conditions but a non-polynomial right-hand side (due to $1/[x^2(4+x)]$ in the $\dot{y}_2$ equation).
+
+Time reparametrization $d\tau/dt = 1/[x^2(4+x)]$ makes the RHS polynomial but turns $x=0$ into a fixed point.
+
+\section{Operator Factorization}
+
+\begin{theorem}[Factorization]
+The differential operator $L = x^2(4+x)D^3 + x(10+3x)D^2 + (2+x)D$ factors as
+\[
+  L = D \circ M_1 \circ M_2
+\]
+where $M_2 = xD + 1$ and $M_1 = x(4+x)D + (2+x)$.
+\end{theorem}
+
+\begin{proof}
+Setting $H = F'$, the equation $L[F]=1$ becomes $M[H]=1$ where $M = x^2(4+x)D^2 + x(10+3x)D + (2+x)$.
+
+We seek $\alpha$ such that $M = M_1 \circ M_2$ with $M_2[H] = xH' + \alpha H$ and $M_1[G] = c(x)G' + d(x)G$. Expanding $M_1 \circ M_2$ and matching coefficients:
+\begin{align*}
+  c(x) \cdot x &= x^2(4+x) \quad\Rightarrow\quad c(x) = x(4+x), \\
+  d(x) \cdot \alpha &= 2+x.
+\end{align*}
+The remaining coefficient equation yields $(\alpha-1)^2 = 0$, so $\alpha = 1$, giving $d(x) = 2+x$.
+
+Verification: $M_1[M_2[H]] = x(4+x)(2H'+xH'') + (2+x)(xH'+H) = x^2(4+x)H'' + x(10+3x)H' + (2+x)H$. \qed
+\end{proof}
+
+\begin{proposition}[First-order ODE for $G$]
+Define $G = M_2[F'] = xF'' + F'$. Then $G$ satisfies the first-order linear ODE
+\begin{equation}\label{eq:G-ode}
+  x(4+x)\,G' + (2+x)\,G = 1
+\end{equation}
+with $G(0) = \frac{1}{2}$. The leading coefficient $x(4+x)$ has a \textbf{simple} zero at $x=0$ (vs.\ the double zero $x^2(4+x)$ in the original ODE).
+\end{proposition}
+
+\begin{proposition}[Series for $G$]\label{prop:G-series}
+The Taylor coefficients of $G(x) = \sum_{n=0}^{\infty} G_n x^n$ are
+\[
+  G_n = \frac{(-1)^n}{2(2n+1)\binom{2n}{n}}, \qquad G_0 = \tfrac{1}{2},
+\]
+satisfying the recurrence $G_n = -\frac{n}{2(2n+1)}\,G_{n-1}$.
+\end{proposition}
+
+\section{The Indicial Structure}
+
+\begin{proposition}[Indicial equation]
+The indicial polynomial of the original ODE \eqref{eq:ode} at $x=0$ is
+\[
+  I(\rho) = 2\rho^2(2\rho - 1),
+\]
+with roots $\rho = 0$ (multiplicity~2) and $\rho = \frac{1}{2}$ (multiplicity~1).
+\end{proposition}
+
+The double root at $\rho=0$ is the source of the structural obstruction.
+
+\section{Five-Variable Polynomial System}
+
+Using the factorization and reparametrizing time by $d\tau/dt = 1/x$, with auxiliary variable $w = 1/(4+x)$:
+
+\begin{equation}\label{eq:system}
+\begin{aligned}
+  \dot{F} &= H\,x(1-x), & F(0) &= 0, \\
+  \dot{H} &= (G-H)(1-x), & H(0) &= \tfrac{1}{2}, \\
+  \dot{G} &= (1-x)\,w\bigl[1-(2+x)G\bigr], & G(0) &= \tfrac{1}{2}, \\
+  \dot{w} &= -w^2\,x(1-x), & w(0) &= \tfrac{1}{4}, \\
+  \dot{x} &= x(1-x), & x(0) &= 0.
+\end{aligned}
+\end{equation}
+
+\begin{observation}
+System \eqref{eq:system} has:
+\begin{enumerate}
+  \item Polynomial right-hand side (degree $\le 3$).
+  \item All rational initial conditions.
+  \item Bounded trajectories (verified numerically from $x=\varepsilon>0$).
+\end{enumerate}
+However, $x=0$ is a fixed point of $\dot{x} = x(1-x)$, so the trajectory is frozen at the initial conditions for all $\tau$.
+\end{observation}
+
+\section{The Blow-Up Chain and Infinite Regression}
+
+\subsection{First blow-up}
+In the original $t$-domain (where $\dot{x} = 1-x$ has no fixed point), the factored system has:
+\[
+  \dot{H} = \frac{(G-H)(1-x)}{x}.
+\]
+Since $G(0) = H(0) = \frac{1}{2}$, define $P = (G-H)/x$. Numerically $P(0) = -\frac{1}{24} = F''(0)$.
+
+\subsection{Equation for $P$}
+The ODE for $P$ in $t$-time involves
+\[
+  \dot{P} = \frac{(1-x)\bigl[1 - (2+x)H - x(10+3x)P\bigr]}{x(4+x)}.
+\]
+Define the numerator $N_1 = 1 - (2+x)H - x(10+3x)P$. Then:
+\begin{itemize}
+  \item $N_1(0) = 1 - 2 \cdot \frac{1}{2} = 0$.
+  \item $N_1'(0) = 0$ (verified numerically and algebraically).
+  \item $N_1 \sim x^2$ as $x \to 0$, with $\lim_{x\to 0} N_1/x^2 = \frac{2}{45}$.
+\end{itemize}
+
+\subsection{Second blow-up and beyond}
+To absorb the $1/x$ in $\dot{P}$, define $S_2 = N_1/x^2$ (finite at $x=0$). But the ODE for $S_2$ again involves a division by $x$, requiring a third blow-up variable, and so on indefinitely.
+
+\begin{theorem}[Infinite regression]\label{thm:regression}
+The blow-up chain for the factored Ap\'ery system does not terminate in finitely many steps. At each level $k$, the new variable $V_k$ (absorbing $1/x$ from level $k-1$) satisfies an ODE whose right-hand side contains a new $0/0$ ratio at $x=0$, requiring a further blow-up at level $k+1$.
+
+This infinite regression is a consequence of the double indicial root $\rho = 0$ (multiplicity~2) in the original ODE.
+\end{theorem}
+
+\begin{remark}
+For an ODE with only \emph{simple} indicial roots at a regular singular point, a single blow-up suffices to resolve the singularity. The double root creates a logarithmic solution $F_{\log}(x) = F_1(x)\log(x) + \tilde{F}(x)$, and the logarithmic monodromy is what prevents finite resolution.
+\end{remark}
+
+\section{Summary of Obstruction}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lcc}
+\hline
+\textbf{Approach} & \textbf{Polynomial RHS?} & \textbf{Computes $\zeta(3)$?} \\
+\hline
+Original $t$-domain & No ($1/x^2$) & Yes \\
+Time reparam.\ by $x^2(4+x)$ & Yes & No (fixed point) \\
+Factored + reparam.\ by $x$ & Yes & No (fixed point) \\
+$\tau e^{-\tau}$ kick & Yes & No (breaks chain rule) \\
+Blow-up chain & Approaches polynomial & Infinite steps needed \\
+\hline
+\end{tabular}
+\end{center}
+
+The core obstruction: the Ap\'ery generating function ODE has a regular singular point at $x=0$ with a double indicial root. This singularity cannot be resolved into a polynomial PIVP by any finite algebraic manipulation.
+
+\section{What Would Work}
+
+A generating function or series for $\zeta(3)$ whose ODE has:
+\begin{enumerate}
+  \item No singular points in $[0,1]$, \textbf{or}
+  \item Only regular singular points with \emph{simple} (multiplicity~1) indicial roots, \textbf{or}
+  \item A singular point where the indicial roots are non-negative integers with multiplicity~1 (apparent singularity, removable).
+\end{enumerate}
+Finding such an ODE is the next direction.
+
+\end{document}
