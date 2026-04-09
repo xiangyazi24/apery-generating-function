@@ -1,0 +1,119 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{observation}{Observation}
+\theoremstyle{definition}
+\newtheorem{problem}{Open Problem}
+
+\title{Note 1: The Ap\'ery Generating Function ODE for $\zeta(3)$}
+\author{Xiang Huang \and Zinan Huang}
+\date{April 9, 2026}
+
+\begin{document}
+\maketitle
+
+\section{The Generating Function}
+
+Define the Ap\'ery accelerated series:
+\begin{equation}\label{eq:F}
+  F(x) = \sum_{n=1}^{\infty} \frac{(-1)^{n-1}}{n^3 \binom{2n}{n}} x^n.
+\end{equation}
+This series converges for $|x| \le 4$ (the radius of convergence is $R=4$).
+
+\begin{proposition}
+$F(1) = \frac{2}{5}\zeta(3)$.
+\end{proposition}
+
+\begin{proposition}
+$F(x)$ satisfies the third-order linear ODE
+\begin{equation}\label{eq:ode}
+  x^2(4+x)\,F''' + x(10+3x)\,F'' + (2+x)\,F' = 1
+\end{equation}
+with initial conditions $F(0) = 0$, $F'(0) = \frac{1}{2}$, $F''(0) = -\frac{1}{24}$.
+All coefficients are integers. All initial values are rational.
+\end{proposition}
+
+Both propositions have been verified numerically to $13$ decimal places.
+
+\section{Transformation to the $t$-Domain}
+
+To formulate an initial value problem on $[0,\infty)$, we use the substitution $x = 1 - e^{-t}$, so $x(0) = 0$, $\lim_{t\to\infty} x(t) = 1$, and $\dot{x} = 1-x$.
+
+Define state variables $y_0 = F$, $y_1 = F'$ (with respect to $x$), $y_2 = F''$. The chain rule gives:
+\begin{align}
+  \dot{y}_0 &= y_1 (1-x) \\
+  \dot{y}_1 &= y_2 (1-x) \\
+  \dot{y}_2 &= F'''(x) \cdot (1-x) = \frac{(1-x)\bigl[1 - x(10+3x)\,y_2 - (2+x)\,y_1\bigr]}{x^2(4+x)}
+\end{align}
+
+\begin{observation}[Boundedness]
+Numerical integration confirms that all trajectories are bounded:
+\[
+  y_0 \in [0, 0.481], \quad y_1 \in [0.463, 0.500], \quad y_2 \in [-0.042, -0.033], \quad x \in [0, 1].
+\]
+The convergence rate is $\alpha \approx 1.0001$, i.e., first-floor convergence.
+\end{observation}
+
+\begin{observation}[Rational initial conditions]
+The initial conditions at $t=0$ (i.e., $x=0$) are:
+\[
+  y_0(0) = 0, \quad y_1(0) = \tfrac{1}{2}, \quad y_2(0) = -\tfrac{1}{24}, \quad x(0) = 0.
+\]
+All rational. No transcendental numbers appear in the initial conditions.
+\end{observation}
+
+\section{The Obstacle: Regular Singular Point}
+
+The equation for $\dot{y}_2$ contains the factor $1/[x^2(4+x)]$, which diverges at $x=0$. This is the \textbf{only} obstruction to the system being a polynomial PIVP.
+
+The singularity at $x=0$ is a \emph{regular singular point} (Fuchsian) of the ODE \eqref{eq:ode}. The solution $F(x)$ is analytic at $x=0$ --- the singularity is an artifact of the coefficient structure, not a true blow-up.
+
+Concretely, at $x=0$:
+\begin{itemize}
+  \item Numerator of $F'''$: $\;1 - 0 \cdot (\ldots) \cdot y_2 - 2 \cdot y_1 = 1 - 2 \cdot \frac{1}{2} = 0$.
+  \item Denominator: $\;x^2(4+x) = 0$.
+\end{itemize}
+The ratio $0/0$ has a finite limit: $F'''(0) = 6a_3 = 6 \cdot \frac{1}{540} = \frac{1}{90}$.
+
+So the system is \emph{numerically} well-behaved (starting from a nearby point works perfectly), but \emph{formally} it is not a polynomial ODE system.
+
+\section{The Core Question}
+
+\begin{problem}
+Can the regular singular point at $x=0$ be regularized --- via variable substitution, blow-up, desingularization, or any other algebraic technique --- to obtain a polynomial PIVP with rational initial conditions that computes $\zeta(3)$?
+\end{problem}
+
+If yes, then $\zeta(3) \in R_{\mathrm{RTCRN}}$.
+
+\subsection{Why This Matters}
+
+Compared to the integral-based PIVP (which computes $\zeta(3)$ but requires transcendental ICs involving $e$ and $1/(e-1)$), this generating-function ODE has:
+\begin{enumerate}
+  \item Rational initial conditions (no transcendental numbers).
+  \item Integer coefficients in the ODE.
+  \item First-floor convergence.
+  \item Bounded trajectories.
+\end{enumerate}
+The \emph{only} missing ingredient is polynomiality of the right-hand side.
+
+\subsection{Possible Approaches}
+
+\begin{enumerate}
+  \item \textbf{Variable substitution}: Define new variables (e.g., $G = F/x$, $H = x^k F^{(j)}$) to absorb the $x^2$ factor. Challenge: substitutions that remove $x^2$ from the denominator tend to introduce $1/x$ elsewhere.
+
+  \item \textbf{Desingularization (blow-up)}: Standard technique from algebraic geometry for resolving singular points of ODEs. Replace the singular point with a higher-dimensional smooth manifold.
+
+  \item \textbf{Regularization by time reparametrization}: Instead of $x = 1-e^{-t}$, use $dt/ds = x^2(4+x)$ (i.e., slow down time near the singularity). This makes the RHS polynomial, but the new time variable $s$ may not reach $x=1$ in finite $s$-time, or the system may become unbounded.
+
+  \item \textbf{Find a different ODE}: Perhaps there exists another ODE (possibly higher order or with more variables) for a related function that has no singular point and still computes $\zeta(3)$.
+\end{enumerate}
+
+\section{Summary}
+
+The generating function of the Ap\'ery accelerated series provides a bridge between the discrete series $\zeta(3) = \sum 1/k^3$ and a continuous ODE. The resulting ODE has all the properties needed for a bounded GPAC computation of $\zeta(3)$ \emph{except} polynomiality at a single regular singular point. Resolving this singularity would settle the question of whether $\zeta(3) \in R_{\mathrm{RTCRN}}$.
+
+\end{document}
