@@ -1,0 +1,131 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm,pifont}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{observation}{Observation}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\title{Note 3: The PIVP Compiler Problem}
+\author{Xiang Huang \and Zinan Huang}
+\date{April 9, 2026}
+
+\begin{document}
+\maketitle
+
+\section{The Problem}
+
+Computing $\zeta(3) \in R_{\mathrm{RTCRN}}$ requires a polynomial PIVP with rational initial conditions whose output converges to $\zeta(3)$. The known ODE system for $\zeta(3)$ (via the Beukers--Apéry integral $\int_0^\infty t^2/(e^t-1)\,dt$) requires transcendental initial conditions involving $e$ and $1/(e-1)$.
+
+\begin{definition}[PIVP Compiler]
+A \textbf{PIVP compiler} is a systematic method that transforms a sequential composition of PIVPs:
+\begin{enumerate}
+  \item Block A: a PIVP with rational ICs computing $\alpha = \lim_{t\to\infty} u(t)$ (e.g., $\alpha = e$),
+  \item Block B: a PIVP with IC depending on $\alpha$ computing $\beta = \lim_{t\to\infty} z(t)$ (e.g., $\beta = \zeta(3)$),
+\end{enumerate}
+into a \textbf{single} polynomial PIVP with rational ICs whose output converges to $\beta$.
+\end{definition}
+
+\section{Approaches Explored}
+
+\subsection{Gate Chain (Time-Scale Separation)}
+
+\textbf{Idea.} Run Block A freely. Gate Block B's evolution with a chain of logistic variables $g_k' = g_{k-1}^2(1-g_k)$. Block B only starts after Block A has approximately converged.
+
+\textbf{Properties.}
+\begin{itemize}
+  \item Polynomial RHS, rational ICs, bounded trajectories. \checkmark
+  \item Gate chain of depth $k$ reduces transient error geometrically. \checkmark
+  \item Error is nonzero for any \emph{fixed} $k$ --- only approximate. \ding{55}
+\end{itemize}
+
+\textbf{Why it fails.} Block B computes an integral $I = \int_0^1 f(x, u(\tau(x)))\,dx$, where $u(\tau(x))$ is Block A's output at the time Block B visits $x$. Since $u \neq \alpha$ during early integration, $I \neq \int_0^1 f(x,\alpha)\,dx$. The error is
+\[
+  \varepsilon = \int_0^1 \bigl[u(\tau(s)) - \alpha\bigr] \cdot \frac{\partial f}{\partial u} \cdot \frac{1}{1+s}\,ds,
+\]
+which is bounded but nonzero for any finite gate depth.
+
+\begin{observation}[Numerical]
+For the test problem $e \cdot \ln 2$: gate depth 1 gives 13.5\% error, depth 7 gives 0.01\% error. Error $\approx C \cdot 3^{-k}$ for depth $k$.
+\end{observation}
+
+\subsection{Direct Replacement}
+
+\textbf{Idea.} In the Apéry $\zeta(3)$ system (12 variables), replace the static constants $e, C=1/(e-1), D=e/(e-1)$ with dynamic estimators $E_1(t) \to e$, $E_2(t) \to 1/(e-1)$, $E_3(t) \to e/(e-1)$.
+
+\textbf{Result.} Fails. The target variable $s_3(t)$ does not converge to $\zeta(3)$. ``The time-varying nature of the $E_k$ functions interacts with the main system in a non-trivial way'' (replacement.tex, DNA32 project).
+
+\textbf{Why it fails.} Same mechanism as the gate chain: the main computation ``sees'' the wrong parameter values during its transient phase, and the accumulated error persists.
+
+\subsection{Explosion as Infinity}
+
+\textbf{Idea.} Use a finite-time blow-up $v' = v^2$, $v(0) = 1$ (explosion at $t=1$) to create ``infinite effective time'' for Block A. Block A converges to $\alpha$ by $t = 1^-$. Then Block B runs in $t \in (1,2)$, using a second explosion at $t=2$.
+
+\textbf{Properties.}
+\begin{itemize}
+  \item $v = 1/(1-t)$, effective time $s_1 = -\ln(1-t) \to \infty$ as $t \to 1^-$.
+  \item In $s_1$-time, $u$ converges to $e$. \checkmark
+\end{itemize}
+
+\textbf{Obstruction 1: Freezing.}
+After DNA32 resolution ($w = 1/v = 1-t$), the variable $u(t) = e^t$ passes through $e$ at $t=1$ but does not freeze. Freezing requires a polynomial $f$ with $f(e) = 0$; since $e$ is transcendental, no such polynomial exists.
+
+\textbf{Obstruction 2: Stability Reversal.}
+For the logistic test $u' = u(1-u)/w$ with $w = 1-t$: the fixed point $u=1$ is stable for $w > 0$ (before explosion) but \emph{unstable} for $w < 0$ (after). The sign change in $w$ reverses the eigenvalue. Numerically: $u(2) \approx 10^6$.
+
+\textbf{Obstruction 3: Snapshot Problem.}
+In a concurrent ODE, Block B reads $u(t)$ (current value), not $u(1)$ (snapshot). Even with the explosion giving infinite effective time at $t=1$, Block B's integration variable sweeps $0 \to 1$ \emph{during} the explosion, and $u$ changes during this sweep.
+
+\section{Two Types of Limits}
+
+\begin{definition}
+A PIVP computation is of \textbf{fixed-point type} if $\lim_{t\to\infty} y(t)$ converges to a globally attracting fixed point of the vector field (e.g., $u' = u(1-s)$, $s' = 1-s$ gives $u \to e$).
+
+A PIVP computation is of \textbf{integral type} if $\lim_{t\to\infty} y(t) = \int_0^1 f(x)\,dx$, computed by accumulation along a trajectory (e.g., $I' = f(x)(1-x)$, $x' = 1-x$).
+\end{definition}
+
+\begin{observation}
+Fixed-point computations are robust to parameter errors: the attractor ``washes out'' transient errors. Integral computations accumulate errors from the entire trajectory. This distinction is critical for PIVP compilation.
+\end{observation}
+
+\section{The Lyapunov Adaptive Control Approach}
+
+\textbf{Proposed framework} (gemini\_draft.tex, DNA32 project):
+
+\begin{enumerate}
+  \item \textbf{GPAC Hierarchy (GPAC-H).} Floor 0: rational ICs. Floor $n$: uses Floor $n{-}1$ constants.
+  \item \textbf{Certainty Equivalence.} Replace unknown constants with dynamic estimators.
+  \item \textbf{Lyapunov Design.} Find $V$ (function of all state variables and estimation errors) with $V' \le 0$.
+  \item \textbf{Dynamic Adaptation Gains.} Adaptation rates are polynomial state variables.
+\end{enumerate}
+
+\textbf{Key property.} If $V' \le 0$ can be achieved with polynomial dynamics and rational ICs, the compiled system converges to the correct value \emph{regardless of transient estimator errors}. This would unify fixed-point and integral type computations.
+
+\textbf{Open question.} Can a suitable Lyapunov function be constructed for the 12-variable Apéry system?
+
+\section{Summary}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{lccc}
+\hline
+\textbf{Approach} & \textbf{Poly RHS?} & \textbf{Rational ICs?} & \textbf{Zero error?} \\
+\hline
+Gate chain (depth $k$) & Yes & Yes & No ($\sim 3^{-k}$) \\
+Direct replacement & Yes & Yes & No (diverges) \\
+Explosion + resolution & Partially & Yes & No (unfreezing) \\
+Lyapunov adaptive & Yes (if exists) & Yes & Yes (if $V' \le 0$) \\
+\hline
+\end{tabular}
+\end{center}
+
+The PIVP compiler problem reduces to: \textbf{construct a Lyapunov function $V$ for the coupled estimator-plus-main system, with $V' \le 0$ achieved by polynomial dynamics.} Alternatively, find a fundamentally different compilation scheme (e.g., via explosions) that achieves zero error.
+
+\end{document}
