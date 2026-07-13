@@ -7,6 +7,12 @@ on:
     paths:
       - code/q4648_compute_temp.py
       - .github/workflows/q4648-temp.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - code/q4648_compute_temp.py
+      - .github/workflows/q4648-temp.yml
 
 permissions:
   contents: write
@@ -25,6 +31,7 @@ jobs:
       - name: Compute through n=200
         run: python code/q4648_compute_temp.py
       - name: Commit exact outputs
+        if: github.event_name == 'push'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
