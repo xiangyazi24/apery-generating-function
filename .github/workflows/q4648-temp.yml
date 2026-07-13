@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   compute:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -39,4 +39,4 @@ jobs:
           git commit -m "Record temporary Q4648 exact outputs"
           git push
 
-# One-off trusted pull-request trigger for Q4648 a672b5aa.
+# One-off trusted pull-request trigger for Q4648 a672b5aa; standard runner.
