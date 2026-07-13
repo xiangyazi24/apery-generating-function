@@ -38,3 +38,5 @@ jobs:
           git add q4648-temp-out/
           git commit -m "Record temporary Q4648 exact outputs"
           git push
+
+# One-off trusted pull-request trigger for Q4648 a672b5aa.
