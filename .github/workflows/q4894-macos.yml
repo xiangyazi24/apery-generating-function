@@ -1,0 +1,43 @@
+name: q4894 macOS Ore factor audit
+
+on:
+  push:
+    branches: [q4894-factor-audit]
+    paths:
+      - q4894_factor_audit.py
+      - .github/workflows/q4894-macos.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - q4894_factor_audit.py
+      - .github/workflows/q4894-macos.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  factor-macos:
+    runs-on: macos-14
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: q4894-factor-audit
+      - run: python3 -m pip install --upgrade sympy
+      - name: Run and save audit
+        shell: bash
+        run: |
+          set +e
+          python3 -u q4894_factor_audit.py 2>&1 | tee q4894_result_macos.txt
+          status=${PIPESTATUS[0]}
+          echo "PROCESS_EXIT_STATUS=$status" | tee -a q4894_result_macos.txt
+          exit 0
+      - name: Commit result
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add q4894_result_macos.txt
+          git diff --cached --quiet || git commit -m 'Record Q4894 macOS factor audit'
+          git push origin HEAD:q4894-factor-audit
