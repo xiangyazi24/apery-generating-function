@@ -1,0 +1,80 @@
+name: q4743-base-compute
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  compute:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install mpmath
+        run: python -m pip install --quiet mpmath
+      - name: Compute exact recurrence table
+        shell: python
+        run: |
+          from fractions import Fraction
+          import mpmath as mp
+
+          mp.mp.dps = 80
+
+          def a0(n):
+              return 41218*n**3 - 48459*n**2 + 20010*n - 2871
+
+          def a1(n):
+              return 2*(48802112*n**9 + 89030880*n**8 + 36002654*n**7
+                       -24317344*n**6 -19538418*n**5 +1311365*n**4
+                       +3790503*n**3 +460056*n**2 -271701*n -60291)
+
+          def a2(n):
+              return (3874492*n**8 -2617900*n**7 -3144314*n**6
+                      +2947148*n**5 +647130*n**4 -1182926*n**3
+                      +115771*n**2 +170716*n -44541)
+
+          def next_term(seq,n):
+              return (-a1(n)*seq[n]
+                      +4*(2*n-1)*a2(n)*seq[n-1]
+                      +4*(n-1)**4*(2*n-1)*(2*n-3)*a0(n+1)*seq[n-2]) / ((n+1)**6*a0(n))
+
+          q=[Fraction(-1),Fraction(42),Fraction(-17934)]
+          p=[Fraction(0),Fraction(87,2),Fraction(-1190161,64)]
+          for n in range(2,29):
+              q.append(next_term(q,n)); p.append(next_term(p,n))
+
+          z5=mp.zeta(5)
+          print('BEGIN_TABLE')
+          print('| n | q_n | p_n | p_n/q_n | error |')
+          print('|---:|---:|---:|---:|---:|')
+          for n in range(30):
+              rr=(mp.mpf(p[n].numerator)/p[n].denominator)/(mp.mpf(q[n].numerator)/q[n].denominator)
+              print(f'| {n} | `{q[n]}` | `{p[n]}` | {mp.nstr(rr,35)} | {mp.nstr(rr-z5,12)} |')
+          print('END_TABLE')
+
+          print('BEGIN_MOBIUS')
+          print('| n | sigma1 | sigma2 | r | u | v |')
+          print('|---:|---:|---:|---:|---:|---:|')
+          for n in range(2,6):
+              vals=[q[n-1]/q[n],q[n-2]/q[n],p[n]/q[n],p[n-1]/q[n],p[n-2]/q[n]]
+              vals=[mp.mpf(x.numerator)/x.denominator for x in vals]
+              print('| '+str(n)+' | '+' | '.join(mp.nstr(x,35) for x in vals)+' |')
+          print('END_MOBIUS')
+
+          roots=sorted(mp.polyroots([1,2368,-752,-16],maxsteps=1000),key=lambda z:abs(z),reverse=True)
+          mu=roots[0]
+          print('BEGIN_LIMITS')
+          print('zeta5',mp.nstr(z5,70))
+          print('roots',[mp.nstr(x,60) for x in roots])
+          print('sigma1star',mp.nstr(1/mu,60))
+          print('sigma2star',mp.nstr(1/mu**2,60))
+          print('rstar',mp.nstr(z5,60))
+          print('ustar',mp.nstr(z5/mu,60))
+          print('vstar',mp.nstr(z5/mu**2,60))
+          print('END_LIMITS')
+
+          for n in range(2,29):
+              for y in (q,p):
+                  lhs=((n+1)**6*a0(n)*y[n+1]+a1(n)*y[n]
+                       -4*(2*n-1)*a2(n)*y[n-1]
+                       -4*(n-1)**4*(2*n-1)*(2*n-3)*a0(n+1)*y[n-2])
+                  assert lhs==0
+          print('ALL_EXACT_RECURRENCE_RESIDUALS_ZERO')
