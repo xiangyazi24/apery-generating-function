@@ -15,6 +15,7 @@ concurrency:
   group: q4859-apery-factor-audit
   cancel-in-progress: true
 
+# Exact symbolic audit; the result is committed back to the temporary branch.
 jobs:
   factor:
     runs-on: ubuntu-latest
