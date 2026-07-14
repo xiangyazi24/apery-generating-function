@@ -1,8 +1,8 @@
 name: q4859 exact factor audit
 
 on:
-  pull_request:
-    branches: [main]
+  push:
+    branches: [q4859-factor-test]
   workflow_dispatch:
 
 concurrency:
