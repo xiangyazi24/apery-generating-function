@@ -6,6 +6,11 @@ on:
     paths:
       - q4894_factor_audit.py
       - .github/workflows/q4894-factor-audit.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - q4894_factor_audit.py
+      - .github/workflows/q4894-factor-audit.yml
   workflow_dispatch:
 
 permissions:
