@@ -1,0 +1,5 @@
+name: q4890
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
