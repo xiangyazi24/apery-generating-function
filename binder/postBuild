@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+git clone --depth 1 --branch chatgpt-scratch https://github.com/xiangyazi24/Shen_work.git /tmp/Shen_work
+python /tmp/Shen_work/scratch/q4890_fraction.py > q4890_result.txt 2>&1
