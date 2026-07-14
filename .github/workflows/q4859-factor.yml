@@ -1,0 +1,19 @@
+name: q4859 exact factor audit
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: q4859-apery-factor-audit
+  cancel-in-progress: true
+
+jobs:
+  factor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install --upgrade sympy
+      - run: python3 -u q4859_factor_sympy.py
