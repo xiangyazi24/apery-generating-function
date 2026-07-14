@@ -87,7 +87,7 @@ for name,r in candidates.items():
     rr=riccati(nh,r)
     print('candidate',name,'zero',rr==0,flush=True)
     if rr != 0:
-        print('candidate',name,'resnum factor',sp.factor(sp.together(rr).as_numer_denom()[0]),flush=True)
+        print('candidate',name,'residual_numerator factor',sp.factor(sp.together(rr).as_numer_denom()[0]),flush=True)
 
 adj=[sp.expand(sh(nh[3-k],k)) for k in range(4)]
 print('adj degrees',[sp.degree(c,n) for c in adj],flush=True)
