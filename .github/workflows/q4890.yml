@@ -1,0 +1,38 @@
+name: Q4890 exact Sage computation
+
+on:
+  push:
+    branches:
+      - q4890-compute
+    paths:
+      - '.github/workflows/q4890.yml'
+      - 'q4890-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  exact-search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: q4890-compute
+      - name: Fetch exact search script
+        run: git clone --depth 1 --branch chatgpt-scratch https://github.com/xiangyazi24/Shen_work.git /tmp/Shen_work
+      - name: Run in official Sage container
+        run: |
+          docker run --rm \
+            -v /tmp/Shen_work:/work \
+            -w /work \
+            sagemath/sagemath:latest \
+            sage scratch/q4890_band.sage > q4890_result.txt 2>&1
+      - name: Record result
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add q4890_result.txt
+          git commit -m "Record Q4890 exact search output [skip ci]" || exit 0
+          git push origin HEAD:q4890-compute
