@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><title>Q4743 exact computation</title><pre id="out">computing…</pre><script>
+function abs(x){return x<0n?-x:x}
+function gcd(a,b){a=abs(a);b=abs(b);while(b){let t=a%b;a=b;b=t}return a}
+class F{constructor(n,d=1n){if(d===0n)throw Error('zero');if(d<0n){n=-n;d=-d}let g=gcd(n,d);this.n=n/g;this.d=d/g}add(o){o=asF(o);return new F(this.n*o.d+o.n*this.d,this.d*o.d)}mul(o){o=asF(o);return new F(this.n*o.n,this.d*o.d)}div(o){o=asF(o);return new F(this.n*o.d,this.d*o.n)}neg(){return new F(-this.n,this.d)}toString(){return this.d===1n?`${this.n}`:`${this.n}/${this.d}`}num(){return Number(this.n)/Number(this.d)}}
+function asF(x){return x instanceof F?x:new F(BigInt(x))}
+function pow(a,n){let r=1n;a=BigInt(a);while(n){if(n&1)r*=a;a*=a;n>>=1}return r}
+function a0(n){n=BigInt(n);return 41218n*n**3n-48459n*n**2n+20010n*n-2871n}
+function a1(n){n=BigInt(n);return 2n*(48802112n*n**9n+89030880n*n**8n+36002654n*n**7n-24317344n*n**6n-19538418n*n**5n+1311365n*n**4n+3790503n*n**3n+460056n*n**2n-271701n*n-60291n)}
+function a2(n){n=BigInt(n);return 3874492n*n**8n-2617900n*n**7n-3144314n*n**6n+2947148n*n**5n+647130n*n**4n-1182926n*n**3n+115771n*n**2n+170716n*n-44541n}
+function next(seq,n){let N=BigInt(n);let num=seq[n].mul(-a1(n)).add(seq[n-1].mul(4n*(2n*N-1n)*a2(n))).add(seq[n-2].mul(4n*(N-1n)**4n*(2n*N-1n)*(2n*N-3n)*a0(n+1)));let den=(N+1n)**6n*a0(n);return num.div(den)}
+let q=[new F(-1n),new F(42n),new F(-17934n)],p=[new F(0n),new F(87n,2n),new F(-1190161n,64n)];
+for(let n=2;n<29;n++){q.push(next(q,n));p.push(next(p,n))}
+let lines=[];lines.push('BEGIN_TABLE');lines.push('n\tq_n\tp_n\tp_n/q_n');for(let n=0;n<30;n++){lines.push(`${n}\t${q[n]}\t${p[n]}\t${(p[n].num()/q[n].num()).toPrecision(17)}`)}lines.push('END_TABLE');
+lines.push('BEGIN_MOBIUS');lines.push('n\tsigma1\tsigma2\tr\tu\tv');for(let n=2;n<=5;n++){let vals=[q[n-1].div(q[n]),q[n-2].div(q[n]),p[n].div(q[n]),p[n-1].div(q[n]),p[n-2].div(q[n])];lines.push(`${n}\t${vals.map(x=>x.num().toPrecision(17)).join('\t')}`)}lines.push('END_MOBIUS');
+lines.push('ALL_EXACT_TERMS_COMPUTED');document.getElementById('out').textContent=lines.join('\n');
+</script>
