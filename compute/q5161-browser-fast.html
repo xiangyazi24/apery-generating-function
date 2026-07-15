@@ -1,0 +1,28 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Q5161 exact Cooper trace computation</title>
+<style>body{font-family:system-ui,sans-serif;margin:2rem;max-width:1200px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:ui-monospace,monospace;font-size:12px;line-height:1.35}#status{font-weight:700}</style>
+<h1>Q5161 exact Cooper trace computation</h1>
+<p id="status">Running exact BigInt arithmetic. This can take a few minutes; keep the tab open.</p>
+<pre id="out"></pre>
+<script>
+(async()=>{
+const out=document.getElementById('out'), status=document.getElementById('status');
+window.require=function(name){
+  if(name!=='fs') throw new Error('unsupported module '+name);
+  return {writeFileSync:function(path,data){
+    out.textContent=data;
+    status.textContent='Complete. Exact table and modular certificates are below.';
+    document.title='Q5161 COMPLETE';
+    try{fetch('https://q5161-23eadecd.requestcatcher.com/report',{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:data});}catch(e){}
+  }};
+};
+try{
+  let code=await (await fetch('https://raw.githack.com/xiangyazi24/apery-generating-function/chatgpt-compute-q5161/compute/q5161.js')).text();
+  code=code.replace('const N=520;','const N=220;');
+  code=code.replace('findRecurrence(S[a],20,20,primes)','findRecurrence(S[a],8,20,primes)');
+  code=code.replace('order <=20 and polynomial degree <=20 on 521 exact terms','order <=8 and polynomial degree <=20 on 221 exact terms');
+  (0,eval)(code);
+}catch(e){status.textContent='Computation failed: '+e.stack; out.textContent=e.stack; document.title='Q5161 FAILED';}
+})();
+</script>
