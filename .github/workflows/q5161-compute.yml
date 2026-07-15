@@ -6,12 +6,14 @@ on:
       - chatgpt-compute-q5161
     paths:
       - compute/q5161.sage
+      - compute/q5161.js
       - .github/workflows/q5161-compute.yml
   pull_request:
     branches:
       - main
     paths:
       - compute/q5161.sage
+      - compute/q5161.js
       - .github/workflows/q5161-compute.yml
 
 concurrency:
@@ -22,7 +24,44 @@ permissions:
   contents: write
 
 jobs:
-  compute:
+  compute-js-macos:
+    runs-on: macos-14
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run dependency-free exact computation
+        run: node compute/q5161.js
+      - name: Print generated report
+        run: cat compute/q5161-js-results.md
+      - name: Upload generated report
+        uses: actions/upload-artifact@v4
+        with:
+          name: q5161-js-results-macos
+          path: compute/q5161-js-results.md
+
+  compute-js-windows:
+    runs-on: windows-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run dependency-free exact computation
+        run: node compute/q5161.js
+      - name: Print generated report
+        shell: pwsh
+        run: Get-Content compute/q5161-js-results.md
+      - name: Upload generated report
+        uses: actions/upload-artifact@v4
+        with:
+          name: q5161-js-results-windows
+          path: compute/q5161-js-results.md
+
+  compute-sage-linux:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -35,17 +74,5 @@ jobs:
       - name: Upload generated report
         uses: actions/upload-artifact@v4
         with:
-          name: q5161-results
+          name: q5161-sage-results
           path: compute/q5161-results.md
-      - name: Commit generated report on push builds
-        if: github.event_name == 'push'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add compute/q5161-results.md
-          if git diff --cached --quiet; then
-            echo "No generated changes"
-          else
-            git commit -m "Generate Q5161 exact computation report"
-            git push
-          fi
