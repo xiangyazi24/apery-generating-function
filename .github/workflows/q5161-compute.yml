@@ -1,0 +1,98 @@
+name: Q5161 exact computation
+
+on:
+  push:
+    branches:
+      - chatgpt-compute-q5161
+    paths:
+      - compute/q5161.sage
+      - compute/q5161.js
+      - .github/workflows/q5161-compute.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - compute/q5161.sage
+      - compute/q5161.js
+      - .github/workflows/q5161-compute.yml
+
+concurrency:
+  group: q5161-public-exact-computation
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  compute-js-arm:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node compute/q5161.js
+      - run: cat compute/q5161-js-results.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: q5161-js-results-arm
+          path: compute/q5161-js-results.md
+
+  compute-js-slim:
+    runs-on: ubuntu-slim
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node compute/q5161.js
+      - run: cat compute/q5161-js-results.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: q5161-js-results-slim
+          path: compute/q5161-js-results.md
+
+  compute-js-macos:
+    runs-on: macos-14
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node compute/q5161.js
+      - run: cat compute/q5161-js-results.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: q5161-js-results-macos
+          path: compute/q5161-js-results.md
+
+  compute-js-windows:
+    runs-on: windows-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node compute/q5161.js
+      - shell: pwsh
+        run: Get-Content compute/q5161-js-results.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: q5161-js-results-windows
+          path: compute/q5161-js-results.md
+
+  compute-sage-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest sage compute/q5161.sage
+      - run: cat compute/q5161-results.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: q5161-sage-results
+          path: compute/q5161-results.md
