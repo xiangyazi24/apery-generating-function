@@ -6,7 +6,7 @@ on:
 
 jobs:
   compute:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     steps:
       - name: Compute gap-polynomial zero maxima
         shell: bash
