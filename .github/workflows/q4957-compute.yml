@@ -1,0 +1,75 @@
+name: q4957-compute
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  compute:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Compute gap-polynomial zero maxima
+        shell: bash
+        run: |
+          node <<'NODE'
+          function mod(a, p) {
+            a %= p;
+            return a < 0 ? a + p : a;
+          }
+          function mul(a, b, p) { return (a * b) % p; }
+          function pow(a, e, p) {
+            let z = 1;
+            a = mod(a, p);
+            while (e > 0) {
+              if (e & 1) z = mul(z, a, p);
+              a = mul(a, a, p);
+              e = Math.floor(e / 2);
+            }
+            return z;
+          }
+          function P(t, p) {
+            const t2 = mul(t, t, p);
+            const t3 = mul(t2, t, p);
+            return mod(34 * t3 + 51 * t2 + 27 * t + 5, p);
+          }
+          function gapData(p) {
+            let maximum = -1;
+            let argmax = [];
+            const histogram = {};
+            for (let x = 0; x < p; x++) {
+              let s0 = 0;
+              let s1 = 1;
+              const zeros = [];
+              for (let h = 1; h <= p - 2; h++) {
+                const t = (x + h) % p;
+                const s2 = mod(P(t, p) * s1 - pow(t, 6, p) * s0, p);
+                s0 = s1;
+                s1 = s2;
+                if (s1 === 0) zeros.push(h + 1);
+              }
+              histogram[zeros.length] = (histogram[zeros.length] || 0) + 1;
+              if (zeros.length > maximum) {
+                maximum = zeros.length;
+                argmax = [{x, zeros}];
+              } else if (zeros.length === maximum) {
+                argmax.push({x, zeros});
+              }
+            }
+            return {p, maximum, argmax, histogram};
+          }
+          function aperyData(p) {
+            const b = [1, 5 % p];
+            for (let n = 1; n <= p - 2; n++) {
+              const num = mod(P(n % p, p) * b[n] - pow(n % p, 3, p) * b[n - 1], p);
+              const den = pow((n + 1) % p, 3, p);
+              b.push(mul(num, pow(den, p - 2, p), p));
+            }
+            const zeros = [];
+            for (let n = 0; n < p; n++) if (b[n] === 0) zeros.push(n);
+            return {p, zeros};
+          }
+          for (const p of [101, 1009]) {
+            console.log('GAP=' + JSON.stringify(gapData(p)));
+            console.log('APERY=' + JSON.stringify(aperyData(p)));
+          }
+          NODE
