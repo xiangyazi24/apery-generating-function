@@ -24,6 +24,36 @@ permissions:
   contents: write
 
 jobs:
+  compute-js-arm:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node compute/q5161.js
+      - run: cat compute/q5161-js-results.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: q5161-js-results-arm
+          path: compute/q5161-js-results.md
+
+  compute-js-slim:
+    runs-on: ubuntu-slim
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node compute/q5161.js
+      - run: cat compute/q5161-js-results.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: q5161-js-results-slim
+          path: compute/q5161-js-results.md
+
   compute-js-macos:
     runs-on: macos-14
     timeout-minutes: 180
@@ -32,12 +62,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run dependency-free exact computation
-        run: node compute/q5161.js
-      - name: Print generated report
-        run: cat compute/q5161-js-results.md
-      - name: Upload generated report
-        uses: actions/upload-artifact@v4
+      - run: node compute/q5161.js
+      - run: cat compute/q5161-js-results.md
+      - uses: actions/upload-artifact@v4
         with:
           name: q5161-js-results-macos
           path: compute/q5161-js-results.md
@@ -50,13 +77,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run dependency-free exact computation
-        run: node compute/q5161.js
-      - name: Print generated report
-        shell: pwsh
+      - run: node compute/q5161.js
+      - shell: pwsh
         run: Get-Content compute/q5161-js-results.md
-      - name: Upload generated report
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: q5161-js-results-windows
           path: compute/q5161-js-results.md
@@ -66,13 +90,9 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
-      - name: Run Sage exact arithmetic
-        run: |
-          docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest sage compute/q5161.sage
-      - name: Print generated report
-        run: cat compute/q5161-results.md
-      - name: Upload generated report
-        uses: actions/upload-artifact@v4
+      - run: docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest sage compute/q5161.sage
+      - run: cat compute/q5161-results.md
+      - uses: actions/upload-artifact@v4
         with:
           name: q5161-sage-results
           path: compute/q5161-results.md
