@@ -1,0 +1,44 @@
+name: Q5161 exact computation
+
+on:
+  push:
+    branches:
+      - chatgpt-compute-q5161
+    paths:
+      - compute/q5161.sage
+      - .github/workflows/q5161-compute.yml
+
+concurrency:
+  group: q5161-public-exact-computation
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  compute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Sage exact arithmetic
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work sagemath/sagemath:latest sage compute/q5161.sage
+      - name: Print generated report
+        run: cat compute/q5161-results.md
+      - name: Upload generated report
+        uses: actions/upload-artifact@v4
+        with:
+          name: q5161-results
+          path: compute/q5161-results.md
+      - name: Commit generated report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add compute/q5161-results.md
+          if git diff --cached --quiet; then
+            echo "No generated changes"
+          else
+            git commit -m "Generate Q5161 exact computation report"
+            git push
+          fi
