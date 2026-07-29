@@ -1,0 +1,14 @@
+name: q2677-compute
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  compute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exact Apéry endpoint residual computation
+        run: node code/q2677_endpoint_p6.js
