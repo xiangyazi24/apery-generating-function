@@ -10,6 +10,9 @@ const M = 20;
 
 function modBig(a, m) { const r = a % m; return r < 0n ? r + m : r; }
 function modInt(a, p) { a %= p; return a < 0 ? a + p : a; }
+function absBig(a){return a<0n?-a:a;}
+function gcdBig(a,b){a=absBig(a);b=absBig(b);while(b){[a,b]=[b,a%b];}return a;}
+function frac(n,d=1n){if(d<0n){n=-n;d=-d;}const g=gcdBig(n,d);n/=g;d/=g;return d===1n?n.toString():`${n}/${d}`;}
 function egcd(a,b){let r0=a,r1=b,s0=1,s1=0;while(r1){const q=Math.floor(r0/r1);[r0,r1]=[r1,r0-q*r1];[s0,s1]=[s1,s0-q*s1];}return [r0,s0];}
 function invInt(a,p){a=modInt(a,p);const [g,x]=egcd(a,p);if(g!==1)throw new Error(`nonunit ${a} mod ${p}`);return modInt(x,p);}
 function powInt(a,e,p){let z=1;a=modInt(a,p);while(e){if(e&1)z=(z*a)%p;a=(a*a)%p;e=Math.floor(e/2);}return z;}
@@ -45,15 +48,16 @@ for(let n=1;n<maxN;n++){
   const bp1=num/den;bm1=bn;bn=bp1;capture(n+1,bn);
 }
 
-const E=Array(M+1),F=Array(M+1),P=Array(M+1),Q=Array(M+1);
+// P_m=Pnum_m/360 and Q_m=Qnum_m/360.  The denominator is a unit for p>=7.
+const E=Array(M+1),F=Array(M+1),Pnum=Array(M+1),Qnum=Array(M+1);
 for(let m=1;m<=M;m++){
   const x=BigInt(m),x2=x*x,x3=x2*x;
   const e=x3*(bSmall[m-1]-17n*bSmall[m]);
   const f=x3*(17n*bSmall[m-1]-bSmall[m]);
   const pp=x3*((68n+7n*x2)*bSmall[m]-(4n+11n*x2)*bSmall[m-1]);
   const qq=x3*((4n+11n*x2)*bSmall[m]-(68n+7n*x2)*bSmall[m-1]);
-  if(e%12n||f%12n||pp%360n||qq%360n)throw new Error(`nonintegral carrier at m=${m}`);
-  E[m]=e/12n;F[m]=f/12n;P[m]=pp/360n;Q[m]=qq/360n;
+  if(e%12n||f%12n)throw new Error(`nonintegral E/F at m=${m}`);
+  E[m]=e/12n;F[m]=f/12n;Pnum[m]=pp;Qnum[m]=qq;
 }
 
 let divFail=0,thetaFail=0,rankFail=0,b5RecurrenceFail=0;
@@ -85,13 +89,15 @@ for(const p of primes){
     if(B5!==B5b){b5RecurrenceFail++;console.log(`B5_REC_FAIL p=${p} half=${B5} rec=${B5b}`);}
   }
   let theta=null,allZero=true;
+  const inv360=invInt(360,p);
   for(let m=1;m<=M;m++){
     const dn=modBig(r.cap[`d${m}`]-bSmall[m]-E[m]*delta,p6);
     const fn=modBig(r.cap[`f${m}`]-bSmall[m-1]-F[m]*delta,p6);
     if(dn%p5!==0n||fn%p5!==0n){divFail++;if(divFail<10)console.log(`DIV_FAIL p=${p} m=${m}`);}
     const d=Number((dn/p5)%pb),f=Number((fn/p5)%pb);
     if(m===1)theta=d;
-    const pm=Number(modBig(P[m],pb)),qm=Number(modBig(Q[m],pb));
+    const pm=modInt(Number(modBig(Pnum[m],pb))*inv360,p);
+    const qm=modInt(Number(modBig(Qnum[m],pb))*inv360,p);
     if(d!==modInt(pm*theta,p)||f!==modInt(qm*theta,p)){
       rankFail++;if(rankFail<10)console.log(`RANK_FAIL p=${p} m=${m} d=${d} f=${f} theta=${theta}`);
     }
@@ -111,9 +117,11 @@ console.log(`THETA_ZERO count=${thetaZero.length} primes=${thetaZero.join(',')}`
 console.log('LARGE_EXAMPLES=' + JSON.stringify(examples));
 console.log('CARRIER_TABLE_HEADER=m,P_m,Q_m,PplusQ,PminusQ,det(EF;PQ)');
 for(let m=1;m<=M;m++){
-  const plus=P[m]+Q[m],minus=P[m]-Q[m],det=E[m]*Q[m]-F[m]*P[m];
-  const detClosed=-(BigInt(m)**8n)*(bSmall[m]*bSmall[m]-bSmall[m-1]*bSmall[m-1])/24n;
-  if(det!==detClosed)throw new Error(`det identity fail m=${m}`);
-  console.log(`CARRIER=${m},${P[m]},${Q[m]},${plus},${minus},${det}`);
+  const plusNum=Pnum[m]+Qnum[m],minusNum=Pnum[m]-Qnum[m];
+  // det(E_m,F_m;P_m,Q_m)=(E_m Qnum_m-F_m Pnum_m)/360.
+  const detNum=E[m]*Qnum[m]-F[m]*Pnum[m];
+  const detClosedNum=-15n*(BigInt(m)**8n)*(bSmall[m]*bSmall[m]-bSmall[m-1]*bSmall[m-1]);
+  if(detNum!==detClosedNum)throw new Error(`det identity fail m=${m}`);
+  console.log(`CARRIER=${m},${frac(Pnum[m],360n)},${frac(Qnum[m],360n)},${frac(plusNum,360n)},${frac(minusNum,360n)},${frac(detNum,360n)}`);
 }
 console.log('SAME_INDEX_TOP old=(-7,8) new=(1,336/5) determinant=-2392/5');
