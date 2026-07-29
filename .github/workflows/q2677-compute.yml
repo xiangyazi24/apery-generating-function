@@ -12,3 +12,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Exact Apéry endpoint residual computation
         run: node code/q2677_endpoint_p6.js
+      - name: Symbolic fit of carrier sequences
+        run: node code/q2677_symbolic_fit.js
