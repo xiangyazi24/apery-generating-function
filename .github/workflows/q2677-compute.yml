@@ -14,3 +14,5 @@ jobs:
         run: node code/q2677_endpoint_p6.js
       - name: Symbolic fit of carrier sequences
         run: node code/q2677_symbolic_fit.js
+      - name: Large independent validation
+        run: node code/q2677_validate_large.js
