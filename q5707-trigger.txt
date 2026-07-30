@@ -1,0 +1,1 @@
+Q5707 exact cross-model hostile-row computation
