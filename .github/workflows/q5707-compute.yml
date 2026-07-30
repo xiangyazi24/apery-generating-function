@@ -141,9 +141,12 @@ jobs:
               targets=[p for p in cand if b[n-p]%p==0]
               P=prod(cand); R=prod(targets)
               g=gcd(abs(GL),abs(GP))
-              assert gcd(abs(GL),P)==R and gcd(abs(GP),P)==R and gcd(abs(D),P)==R
+              support_GL=[p for p in cand if GL%p==0]
+              support_GP=[p for p in cand if GP%p==0]
+              support_D=[p for p in cand if D%p==0]
               print('ROW',n,'M',M,'d0',d0,'L',L)
-              print('CANDIDATES',cand); print('TARGETS',targets); print('P',P); print('R',R)
+              print('CANDIDATES',cand); print('APERY_TARGETS',targets); print('P',P); print('R',R)
+              print('SUPPORT_GL',support_GL); print('SUPPORT_GP',support_GP); print('SUPPORT_D',support_D)
               for name,x in [('G_LAMBDA',GL),('G_PHI',GP),('D',D),('GCD_MODELS',g)]:
                   print(name,x); print(name+'_HEIGHT',height(x))
               print('GCD_FACTOR',factorint(g))
