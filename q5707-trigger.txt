@@ -1,1 +1,1 @@
-Q5707 exact cross-model comparison rows 200,272,300,755
+Q5707 cover-preserving adjacent-stencil family audit
