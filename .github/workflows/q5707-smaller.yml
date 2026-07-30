@@ -1,0 +1,31 @@
+name: q5707-smaller
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'q5707-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  compute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install factorizer
+        run: python3 -m pip install --quiet sympy
+      - name: Extract audited evaluator and run comparison rows
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          s=Path('.github/workflows/q5707-compute.yml').read_text()
+          s=s.split("cat > /tmp/q5707.py <<'PY'\n",1)[1].split("\n          PY",1)[0]
+          s='\n'.join(line[10:] if line.startswith('          ') else line for line in s.splitlines())
+          s=s.replace('selftest(); row(321)','selftest(); [row(n) for n in [200,272,300,755]]')
+          Path('/tmp/q5707.py').write_text(s+'\n')
+          PY
+          python3 /tmp/q5707.py
