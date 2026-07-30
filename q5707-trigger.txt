@@ -1,1 +1,1 @@
-Q5707 exact cross-model hostile-row computation
+Q5707 exact cross-model hostile-row computation, selector-support rerun
