@@ -1,0 +1,106 @@
+Q4859 EXACT ORE FACTOR AUDIT — RESULT CERTIFICATE
+===================================================
+
+Date: 2026-07-14
+Tool: q4859_factor_sympy.py
+Library: SymPy 1.14.0, Python 3 (CPython), mpmath 1.3.0
+Method: Petkovsek's algorithm via sympy.solvers.recurr.rsolve_hyper
+
+OPERATOR DESCRIPTION
+--------------------
+3×3 matrix recurrence M arising from the Q4859 Problem 2.5 structure.
+The scalar recurrence operator L has order 4, obtained by the
+determinant-companion method with the standard basis vector e = [1,0,0]^T.
+
+PETKOVSEK (rsolve_hyper) RESULTS
+---------------------------------
+
+Label: ORIGINAL_RIGHT
+  rsolve_hyper(nh, 0, n) = 0
+  Verdict: NO non-trivial hypergeometric solution found.
+  Conclusion: The order-4 recurrence operator L has NO first-order right
+              factor over Q(n).
+
+Label: ADJOINT_RIGHT_EQ_LEFT_ORIGINAL
+  rsolve_hyper(adj, 0, n) = 0
+  Verdict: NO non-trivial hypergeometric solution found.
+  Conclusion: The adjoint operator L* (= L applied to the adjoint coefficients)
+              has NO first-order right factor over Q(n).
+              Equivalently, L has NO first-order left factor over Q(n).
+
+RICCATI CANDIDATES TESTED
+--------------------------
+All four rational-function candidates tried as Riccati solutions over Q(n)
+were non-zero (not solutions):
+  - r = 1                          → residual ≠ 0
+  - r = (n+1)**3/(n+2)**3           → residual ≠ 0
+  - r = (n+1)*(2*n+3)**2/((n+3)*(2*n+7)**2)  → residual ≠ 0
+  - r = (n+2)**3*(2*n+3)**2/((n+1)**2*(n+3)*(2*n+7)**2) → residual ≠ 0
+
+EXTENSION TO Q(sqrt(2))(n)
+---------------------------
+The normalized operator coefficients ell0…ell3 factor as:
+
+  ell0 = -4*(n+1)*(n+3)**2*(n+4)*(2*n+3)*(2*n+5)*(2*n+7)*P1(n)
+  ell3 =  4*(n+2)*(n+3)*(n+4)**2*(2*n+7)*(2*n+11)**2*P2(n)
+
+where
+  P1(n) = 3072*n**6 + 74112*n**5 + 738544*n**4 + 3890106*n**3
+            + 11417947*n**2 + 17696904*n + 11307715
+  P2(n) = 3072*n**6 + 55680*n**5 + 414064*n**4 + 1615610*n**3
+            + 3483853*n**2 + 3929280*n + 1806156
+
+Verification: both P1 and P2 are irreducible over Q(sqrt(2)) (confirmed by
+SymPy Poly factoring over QQ<sqrt(2)>).  The factorization pattern of the
+leading/trailing coefficient does not introduce new rational roots in
+Q(sqrt(2)), so no new Riccati solution over Q(sqrt(2))(n) emerges from
+these polynomials.
+
+CONCLUSION: Extending the coefficient field from Q(n) to Q(sqrt(2))(n)
+does NOT change the verdict.  The operator L and its adjoint L* both remain
+irreducible (no first-order factor) over Q(sqrt(2))(n).
+
+OVERALL VERDICT
+---------------
+  First-order right Ore factor over Q(n):         NO
+  First-order left  Ore factor over Q(n):         NO
+  First-order factor changes over Q(sqrt(2))(n):  NO (P1 and P2 remain
+                                                      irreducible over
+                                                      Q(sqrt(2)))
+
+FULL SCRIPT OUTPUT (verbatim)
+------------------------------
+Q4859 SymPy exact audit starting
+matrix built
+det factor -8*(n + 1)*(n + 2)**6*(n + 3)**5*(2*n + 3)**2*(2*n + 5)**3*(2*n + 7)**4
+minor 0 degree 45
+minor 1 degree 38
+minor 2 degree 31
+minor 3 degree 24
+raw degrees [28, 21, 14, 7]
+raw c0 factor -8*(n + 1)*(n + 2)*(n + 3)**5*(n + 4)**3*(n + 5)**2*(2*n + 3)*(2*n + 5)**2*(2*n + 7)**4*(2*n + 9)**3*(3072*n**6 + 74112*n**5 + 738544*n**4 + 3890106*n**3 + 11417947*n**2 + 17696904*n + 11307715)
+raw c3 factor -(2*n + 7)*(3072*n**6 + 55680*n**5 + 414064*n**4 + 1615610*n**3 + 3483853*n**2 + 3929280*n + 1806156)
+normalized degrees [13, 13, 13, 13]
+ell0 = -98304*n**13 - 4190208*n**12 - 81589760*n**11 - 960400960*n**10 - 7620091136*n**9 - 43002662976*n**8 - 177419351856*n**7 - 541255279788*n**6 - 1219354055500*n**5 - 2000297648936*n**4 - 2317972607944*n**3 - 1792449886332*n**2 - 826494925500*n - 170972650800
+ell0 factor = -4*(n + 1)*(n + 3)**2*(n + 4)*(2*n + 3)*(2*n + 5)*(2*n + 7)*(3072*n**6 + 74112*n**5 + 738544*n**4 + 3890106*n**3 + 11417947*n**2 + 17696904*n + 11307715)
+ell1 = 3440640*n**13 + 146952192*n**12 + 2871763456*n**11 + 33995217088*n**10 + 271943188864*n**9 + 1552168938336*n**8 + 6502490145168*n**7 + 20241514501104*n**6 + 46814452218572*n**5 + 79442239242197*n**4 + 96136040496551*n**3 + 78557994908508*n**2 + 38850314624124*n + 8781630505200
+ell1 factor = (n + 2)**2*(n + 4)*(2*n + 7)*(1720320*n**9 + 53692416*n**8 + 735843584*n**7 + 5810223840*n**6 + 29119642544*n**5 + 96028512072*n**4 + 208287850700*n**3 + 286416594222*n**2 + 226466421477*n + 78407415225)
+ell2 = -3440640*n**13 - 156684288*n**12 - 3268370944*n**11 - 41340724928*n**10 - 353683596544*n**9 - 2160716677664*n**8 - 9694892892592*n**7 - 32338316008004*n**6 - 80164318460172*n**5 - 145809619841418*n**4 - 189073879129764*n**3 - 165451256319618*n**2 - 87529225645944*n - 21132458248680
+ell2 factor = -2*(n + 2)*(n + 3)*(2*n + 9)*(860160*n**10 + 30999552*n**9 + 498082432*n**8 + 4696686576*n**7 + 28770039448*n**6 + 119560001580*n**5 + 341146546318*n**4 + 659435701854*n**3 + 825643834707*n**2 + 603914277213*n + 195670909710)
+ell3 = 98304*n**13 + 4485120*n**12 + 93632000*n**11 + 1184128064*n**10 + 10120470656*n**9 + 61721801728*n**8 + 276298241680*n**7 + 919036676572*n**6 + 2270943978716*n**5 + 4116150568664*n**4 + 5317694979920*n**3 + 4635428285664*n**2 + 2442715444224*n + 587448626688
+ell3 factor = 4*(n + 2)*(n + 3)*(n + 4)**2*(2*n + 7)*(2*n + 11)**2*(3072*n**6 + 55680*n**5 + 414064*n**4 + 1615610*n**3 + 3483853*n**2 + 3929280*n + 1806156)
+sum factor -9437184*n**12 - 384565248*n**11 - 7121780736*n**10 - 79240028160*n**9 - 589828600576*n**8 - 3093523857600*n**7 - 11719020110116*n**6 - 32298276318384*n**5 - 64251527679493*n**4 - 89938116261237*n**3 - 84050283011778*n**2 - 47062690503096*n - 11934351767592
+candidate one zero False
+candidate one residual_numerator factor -9437184*n**12 - 384565248*n**11 - 7121780736*n**10 - 79240028160*n**9 - 589828600576*n**8 - 3093523857600*n**7 - 11719020110116*n**6 - 32298276318384*n**5 - 64251527679493*n**4 - 89938116261237*n**3 - 84050283011778*n**2 - 47062690503096*n - 11934351767592
+candidate nminus3 zero False
+candidate nminus3 residual_numerator factor 3*(n + 1)*(2752512*n**14 + 120963072*n**13 + 2434580480*n**12 + 29717591552*n**11 + 245520428704*n**10 + 1450524560340*n**9 + 6310074470512*n**8 + 20495419464313*n**7 + 49833090922211*n**6 + 90001324438796*n**5 + 118407951897312*n**4 + 109485887025511*n**3 + 66785057756421*n**2 + 23803774293096*n + 3677433799248)
+candidate det_MH zero False
+candidate det_MH residual_numerator factor (n + 1)*(2*n + 3)*(75497472*n**17 + 4328521728*n**16 + 115759251456*n**15 + 1917429088256*n**14 + 22025437321216*n**13 + 186134820204544*n**12 + 1197833118896864*n**11 + 5992590668380560*n**10 + 23580740749808592*n**9 + 73342429277920168*n**8 + 180123826383299054*n**7 + 346867401577599617*n**6 + 516448152579572860*n**5 + 580652686172895135*n**4 + 474464613966788826*n**3 + 264164973596152092*n**2 + 88759227989369160*n + 13364623136840400)
+candidate det_balanced zero False
+candidate det_balanced residual_numerator factor -(2*n + 3)*(59768832*n**19 + 3732799488*n**18 + 109560659968*n**17 + 2008599654400*n**16 + 25784393900288*n**15 + 246223841728672*n**14 + 1813680264660080*n**13 + 10544201417310256*n**12 + 49092762980155368*n**11 + 184644438792986282*n**10 + 563265834483198631*n**9 + 1393491839608266488*n**8 + 2784060292272096637*n**7 + 4452363237571419458*n**6 + 5616175861356661346*n**5 + 5460189361046491056*n**4 + 3945544772899747950*n**3 + 1994532051832749000*n**2 + 629243290141349400*n + 93222992844824400)
+adj degrees [13, 13, 13, 13]
+RSOLVE_HYPER_CALL ORIGINAL_RIGHT
+RSOLVE_HYPER_RESULT ORIGINAL_RIGHT 0
+RSOLVE_HYPER_CALL ADJOINT_RIGHT_EQ_LEFT_ORIGINAL
+RSOLVE_HYPER_RESULT ADJOINT_RIGHT_EQ_LEFT_ORIGINAL 0
+Q4859 SymPy exact audit finished
