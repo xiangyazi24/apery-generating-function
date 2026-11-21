@@ -1,0 +1,21 @@
+name: Q10130 cancel redundant runs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/q10130-cancel-redundant-temp.yml'
+
+permissions:
+  actions: write
+
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel superseded campaigns
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/44863421884/cancel" || true
+          gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/44864106123/cancel" || true
