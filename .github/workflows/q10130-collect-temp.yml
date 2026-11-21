@@ -1,0 +1,47 @@
+name: Q10130 collect numerical results
+
+on:
+  workflow_run:
+    workflows: [Q10130 robust linear species numerics]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  collect:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --quiet numpy
+      - run: curl -fsSL https://raw.githubusercontent.com/xiangyazi24/SSExactMajority/scratch/q10130/run.py -o /tmp/run.py
+      - name: Download and flatten artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          mkdir -p raw result
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --dir raw
+          find raw -name '*.json' -exec cp {} result/ \;
+          ls -l result
+      - name: Aggregate
+        run: |
+          test $(find result -name 'cell-*.json' | wc -l) -eq 12
+          test -f result/edge.json
+          mkdir -p q10130
+          python /tmp/run.py aggregate result q10130/summary.json
+          cat q10130/summary.json
+      - name: Commit summary
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git pull --rebase origin main
+          git add q10130/summary.json
+          git commit -m 'Record Q10130 numerical summary'
+          git push origin HEAD:main
