@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   collect:
-    if: github.event.workflow_run.conclusion == 'success'
+    if: github.event.workflow_run.conclusion != 'cancelled'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m pip install --quiet numpy
+      - run: python -m pip install --quiet numpy scipy
       - run: curl -fsSL https://raw.githubusercontent.com/xiangyazi24/SSExactMajority/scratch/q10130/run.py -o /tmp/run.py
       - name: Download and flatten artifacts
         env:
@@ -36,12 +36,27 @@ jobs:
           test -f result/edge.json
           mkdir -p q10130
           python /tmp/run.py aggregate result q10130/summary.json
-          cat q10130/summary.json
+          python - <<'PY' > q10130/report.txt
+          import json
+          x = json.load(open('q10130/summary.json'))
+          print('META', x['random_starts'], x['rate_assignments'], x['rtol'], x['atol'])
+          print('CONS', json.dumps(x['conservation'], sort_keys=True))
+          for k, v in sorted(x['fits'].items()):
+              print('FIT', k, json.dumps(v, sort_keys=True))
+          print('EDGE', json.dumps(x['edge'], sort_keys=True))
+          for c in sorted(x['cells'], key=lambda z: (z['k'], -z['eps'])):
+              n = c['nominal']
+              print('CELL', c['k'], c['eps'], c['starts_per_sign'], c['channels'], c['duplicates'], n['passed'], n['total'], n['worst_entry'], n['worst_name'], n['min_final_signed_h'])
+              for name, v in sorted(c['theta'].items()):
+                  r, a = v['random'], v['adverse']
+                  print('MODE', c['k'], c['eps'], name, v['theta'], r['passed'], r['total'], r['worst_entry'], r['worst_name'], r['min_final_signed_h'], a['passed'], a['total'], a['worst_entry'], a['worst_name'], a['min_final_signed_h'])
+          PY
+          cat q10130/report.txt
       - name: Commit summary
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git pull --rebase origin main
-          git add q10130/summary.json
+          git add q10130/summary.json q10130/report.txt
           git commit -m 'Record Q10130 numerical summary'
           git push origin HEAD:main
